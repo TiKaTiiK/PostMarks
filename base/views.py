@@ -10,3 +10,8 @@ def home(request):
 
 def about(request):
     return render(request, 'base/about.html')
+
+
+def profile(request):
+    return render(request, 'base/profile.html')
+
