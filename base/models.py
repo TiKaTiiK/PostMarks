@@ -8,11 +8,18 @@ class Author(models.Model):
     def __str__(self):
         return self.name
 
+class Denomination(models.Model):
+    name = models.CharField(max_length=300)
+
+    def __str__(self):
+        return self.name
+
 # Create your models here.
 class Mark(models.Model):
     author = models.ForeignKey(Author, on_delete=models.SET("Unknown Author"))
     image = models.CharField(max_length=300)
     name = models.CharField(max_length=200)
+    denomination = models.ManyToManyField(Denomination, blank=True, related_name='marks')
     description = models.TextField(max_length=300)
     content = models.CharField(max_length=200)
 
@@ -20,4 +27,4 @@ class Mark(models.Model):
         return f"{self.name} _ {self.author}"
 
 class User(AbstractUser):
-    marks = models.ManyToManyField(Mark, blank=True, related_name='Mark')
+    marks = models.ManyToManyField(Mark, blank=True, related_name='users')
