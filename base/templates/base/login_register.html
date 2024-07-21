@@ -1,0 +1,33 @@
+{% extends 'main.html' %}
+
+{% block title %} <title>Contact Page</title> {% endblock %}
+
+{% block content %}
+    {% if page == 'login' %}
+<!--    login code-->
+        <h1> Login Page </h1>
+        <div>
+            <form method="POST" action="">
+                {% csrf_token %}
+                <label for="">Username:</label>
+                <br>
+                <input type="text" name="username" placeholder="Enter User">
+                <br>
+                <label for="">Password:</label>
+                <br>
+                <input type="password" name="password" placeholder="Enter Password">
+                <input type="submit" value="Login">
+                <br> <br>
+                <p>Haven't you signed up yet?</p>
+                <a href="{% url 'register' %}">Sign Up</a>
+            </form>
+        </div>
+    {% else %}
+<!--    register code-->
+    <h1>Register Page</h1>
+    <br> <br>
+    <p>Already signed up?</p>
+    <a href="{% url 'login' %}">Login</a>
+    {% endif %}
+{% endblock %}
+

@@ -1,7 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import Mark, User, Denomination
 from django.db.models import Q
+from django.contrib.auth import authenticate, login, logout
 
 # Create your views here.
 
@@ -34,3 +35,50 @@ def profile(request, st):
     heading = "My Stamps"
     context = {'marks': marks, "user": user, "heading": heading, "denominations": denominations}
     return render(request, 'base/profile.html', context)
+
+
+def adding(request, id):
+    mark = Mark.objects.get(id=id)
+    user = request.user
+    user.marks.add(mark)
+    return redirect('profile', user.id)
+
+def delete(request, id):
+    mark = Mark.objects.get(id=id)
+    if request.method == "POST":
+        request.user.marks.remove(mark)
+        return redirect('profile', request.user.id)
+    return render(request,'base/delete.html', {'mark': mark})
+
+def login_page(request):
+    page = 'login'
+    if request.user.is_authenticated:
+        return redirect('home')
+
+    if request.method == 'POST':
+        username = request.POST.get('username').lower()
+        password = request.POST.get('password').lower()
+
+        try:
+            user = User.objects.get(username=username)
+        except:
+            pass #error message
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            return redirect('home')
+        else:
+            pass #error mess
+
+    context = {'page': page}
+    return render(request, 'base/login_register.html', context)
+
+def logout_user(request):
+    logout(request)
+    return redirect('home')
+
+def register_page(request):
+    context = {}
+    return render(request, 'base/login_register.html', context)
