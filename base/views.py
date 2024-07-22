@@ -3,6 +3,8 @@ from django.http import HttpResponse
 from .models import Mark, User, Denomination
 from django.db.models import Q
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from .forms import MyUserCreationForm
 
 # Create your views here.
 
@@ -36,13 +38,14 @@ def profile(request, st):
     context = {'marks': marks, "user": user, "heading": heading, "denominations": denominations}
     return render(request, 'base/profile.html', context)
 
-
+@login_required(login_url='login')
 def adding(request, id):
     mark = Mark.objects.get(id=id)
     user = request.user
     user.marks.add(mark)
     return redirect('profile', user.id)
 
+@login_required(login_url='login')
 def delete(request, id):
     mark = Mark.objects.get(id=id)
     if request.method == "POST":
@@ -51,7 +54,6 @@ def delete(request, id):
     return render(request,'base/delete.html', {'mark': mark})
 
 def login_page(request):
-    page = 'login'
     if request.user.is_authenticated:
         return redirect('home')
 
@@ -72,13 +74,23 @@ def login_page(request):
         else:
             pass #error mess
 
-    context = {'page': page}
-    return render(request, 'base/login_register.html', context)
+    return render(request, 'base/login.html')
 
 def logout_user(request):
     logout(request)
     return redirect('home')
 
 def register_page(request):
-    context = {}
-    return render(request, 'base/login_register.html', context)
+    form = MyUserCreationForm
+
+    if request.method == "POST":
+        form = MyUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.username = user.username.lower()
+            user.save()
+            login(request, user)
+            return redirect('home')
+
+    context = {'form': form}
+    return render(request, 'base/register.html', context)
