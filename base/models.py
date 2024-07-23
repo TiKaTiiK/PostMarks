@@ -2,8 +2,6 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 class Author(models.Model):
     name = models.CharField(max_length=200)
-    birth = models.DateField(null=True)
-    death = models.DateField(null=True)
 
     def __str__(self):
         return self.name
@@ -17,13 +15,12 @@ class Denomination(models.Model):
 
 # Create your models here.
 class Mark(models.Model):
-    objects = None
     author = models.ForeignKey(Author, on_delete=models.SET("Unknown Author"))
-    image = models.CharField(max_length=300)
+    image = models.ImageField(null=True, blank=True)
     name = models.CharField(max_length=200)
     denomination = models.ManyToManyField(Denomination, blank=True, related_name='marks')
     description = models.TextField(max_length=300)
-    content = models.CharField(max_length=200)
+    file = models.FileField(null=True)
 
     def __str__(self):
         return f"{self.name} _ {self.author}"

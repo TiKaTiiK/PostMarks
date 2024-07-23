@@ -1,0 +1,56 @@
+{% extends 'main.html' %}
+
+{% block title %} <title>Add Page</title> {% endblock %}
+
+{% block content %}
+    <h1>Apload Stamp:</h1>
+    <form action="" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div>
+            <label>Mark Cover:</label>
+            <br>
+            {{ form.image }}
+        </div>
+        <div>
+            <label>Mark Title:</label>
+            <br>
+            {{ form.name }}
+        </div>
+        <div>
+            <label for="mark_author">Author:</label>
+            <br>
+            <input required type="text" name="author" list="author-list">
+            <datalist id="author-list">
+                {% for author in authors %}
+                    <select id="mark_author">
+                        <option value="{{ author.name }}">{{ author.name }}</option>
+                    </select>
+                {% endfor %}
+            </datalist>
+        </div>
+        <div>
+            <label for="mark_denomination">Denomination:</label>
+            <br>
+            <input required type="text" name="denomination" list="denomination-list">
+            <datalist id="denomination-list">
+                {% for denomination in denominations %}
+                    <select id="mark_denomination">
+                        <option value="{{ denomination.name }}">{{ denomination.name }}</option>
+                    </select>
+                {% endfor %}
+            </datalist>
+        </div>
+        <div>
+            <label>Mark Description:</label>
+            <br>
+            {{ form.description }}
+        </div>
+        <div>
+            <label>PDF File:</label>
+            <br>
+            {{ form.file }}
+        </div>
+        <br>
+        <input type="submit" value="Create">
+    </form>
+{% endblock %}

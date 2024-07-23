@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from .models import Mark, User, Denomination
+from .models import Mark, User, Denomination, Author
 from django.db.models import Q
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .forms import MyUserCreationForm
+from .forms import MyUserCreationForm, MarkForm
 
 # Create your views here.
 
@@ -94,3 +94,28 @@ def register_page(request):
 
     context = {'form': form}
     return render(request, 'base/register.html', context)
+
+def add_mark(request):
+    authors = Author.objects.all()
+    denominations = Denomination.objects.all()
+    form = MarkForm()
+
+    if request.method == "POST":
+        mark_author = request.POST.get('author')
+        mark_denomination = request.POST.get('denomination')
+
+        author, created = Author.objects.get_or_create(name=mark_author)
+        denomination, created = Denomination.objects.get_or_create(name=mark_denomination)
+
+        form = MarkForm(request.POST)
+
+        new_mark = Mark(image=request.FILES['image'], name=form.data['name'], author=author,
+                        description=form.data['description'], file=request.FILES['file'])
+
+        new_mark.save()
+        new_mark.denomination.add(denomination)
+
+        return redirect('home')
+
+    context = {'form': form, 'authors': authors, 'denominations': denominations}
+    return render(request, 'base/add_mark.html', context)

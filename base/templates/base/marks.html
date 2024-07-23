@@ -27,7 +27,7 @@
             <div style="display: flex;">
                 {% for mark in marks %}
                     <div class="card" style="width: 18rem; margin-left: 30px;">
-                        <img src="{{ mark.image }}" class="card-img-top" alt="...">
+                        <img src="{{ mark.image.url }}" class="card-img-top" alt="...">
                         <div class="card-body">
                             <h5 class="card-title">{{ mark.name }}</h5>
                             <h6 class="card-title">{{ mark.author }}</h6>
