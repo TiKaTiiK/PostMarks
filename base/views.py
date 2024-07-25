@@ -5,12 +5,16 @@ from django.db.models import Q
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .forms import MyUserCreationForm, MarkForm
+from .seeder import seeder_func
+from django.contrib import messages
+
 
 # Create your views here.
 
 
 def home(request):
     q = request.GET.get('q') if request.GET.get('q') is not None else ""
+    # seeder_func()
     # marks = Mark.objects.all()
     marks = Mark.objects.filter(Q(name__icontains=q) | Q(description__icontains=q) | Q(denomination__name__icontains=q))
     marks = list(set(marks))
@@ -64,7 +68,7 @@ def login_page(request):
         try:
             user = User.objects.get(username=username)
         except:
-            pass #error message
+            messages.error(request, "Username doesn't exist!")
 
         user = authenticate(request, username=username, password=password)
 
@@ -72,7 +76,7 @@ def login_page(request):
             login(request, user)
             return redirect('home')
         else:
-            pass #error mess
+            messages.error(request, "Username or Password is incorrect!")
 
     return render(request, 'base/login.html')
 
@@ -110,7 +114,7 @@ def add_mark(request):
         form = MarkForm(request.POST)
 
         new_mark = Mark(image=request.FILES['image'], name=form.data['name'], author=author,
-                        description=form.data['description'], file=request.FILES['file'])
+                        description=form.data['description'], file=request.FILES['file'], creator=request.user)
 
         new_mark.save()
         new_mark.denomination.add(denomination)
@@ -119,3 +123,7 @@ def add_mark(request):
 
     context = {'form': form, 'authors': authors, 'denominations': denominations}
     return render(request, 'base/add_mark.html', context)
+
+def view(request, id):
+    mark = Mark.objects.get(id=id)
+    return render(request, 'base/view.html', {'mark':mark})
