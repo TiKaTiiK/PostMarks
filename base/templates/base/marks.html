@@ -58,9 +58,12 @@
                             {% if request.user.is_authenticated %}
                                 <a href="{% url 'view' mark.id %}" class="btn btn-primary">View</a>
                                 {% if mark in request.user.marks.all %}
-                                    <a href="{% url 'delete' mark.id %}" class="btn btn-primary">Delete</a>
+                                    <a href="{% url 'delete' mark.id %}" class="btn btn-primary">Drop</a>
                                 {% else %}
                                     <a href="{% url 'adding' mark.id %}" class="btn btn-primary">Add</a>
+                                {% endif %}
+                                {% if request.user == mark.creator %}
+                                    <a href="{% url 'delete_mark' mark.id %}" class="btn btn-primary">Delete</a>
                                 {% endif %}
                             {% endif %}
                          </div>

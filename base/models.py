@@ -28,7 +28,7 @@ class Mark(models.Model):
 
 
     class Meta:
-        ordering = ['name']
+        ordering = ["created"]
 
 
     def __str__(self):
@@ -36,3 +36,6 @@ class Mark(models.Model):
 
 class User(AbstractUser):
     marks = models.ManyToManyField(Mark, blank=True, related_name='users')
+    bio = models.TextField(null=True)
+    avatar = models.ImageField(null=True, default='avatar.svg')
+

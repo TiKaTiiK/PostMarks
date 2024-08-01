@@ -13,3 +13,8 @@ class MarkForm(ModelForm):
     class Meta:
         model = Mark
         fields = '__all__'
+
+class UserForm(ModelForm):
+    class Meta:
+        model = User
+        fields = ['avatar', 'username', 'email', 'bio', 'marks']

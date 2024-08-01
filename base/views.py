@@ -4,7 +4,7 @@ from .models import Mark, User, Denomination, Author
 from django.db.models import Q
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .forms import MyUserCreationForm, MarkForm
+from .forms import MyUserCreationForm, MarkForm, UserForm
 from .seeder import seeder_func
 from django.contrib import messages
 
@@ -17,7 +17,7 @@ def home(request):
     # seeder_func()
     # marks = Mark.objects.all()
     marks = Mark.objects.filter(Q(name__icontains=q) | Q(description__icontains=q) | Q(denomination__name__icontains=q))
-    marks = list(set(marks))
+    marks = list(dict.fromkeys(marks))
     # print(marks[0].users.all())
     denominations = Denomination.objects.all()
     heading = "Catalogue"
@@ -116,10 +116,10 @@ def add_mark(request):
         new_mark = Mark(image=request.FILES['image'], name=form.data['name'], author=author,
                         description=form.data['description'], file=request.FILES['file'], creator=request.user)
 
-        new_mark.save()
-        new_mark.denomination.add(denomination)
-
-        return redirect('home')
+        if not (Mark.objects.filter(file=new_mark.file) or Mark.objects.filter(name=new_mark.name)):
+            new_mark.save()
+            new_mark.denomination.add(denomination)
+            return redirect('home')
 
     context = {'form': form, 'authors': authors, 'denominations': denominations}
     return render(request, 'base/add_mark.html', context)
@@ -127,3 +127,24 @@ def add_mark(request):
 def view(request, id):
     mark = Mark.objects.get(id=id)
     return render(request, 'base/view.html', {'mark':mark})
+
+def delete_mark(request, id):
+    mark = Mark.objects.get(id=id)
+    if request.method == 'POST':
+        mark.image.delete() # ამ ორი ხაზის საშუალებით მარკის წაშლის დროს იშლება ფაილი და ფოტო ბაზიდანაც
+        mark.file.delete()
+        mark.delete()
+        return redirect('home')
+    return render(request, 'base/delete.html', {'mark': mark})
+
+@login_required(login_url='login')
+def update_user(request):
+    user = request.user
+    form = UserForm(instance=user)
+
+    if request.method == 'POST':
+        form = UserForm(request.POST, request.FILES, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect('profile', user.id)
+    return render(request, 'base/update_user.html', {'form': form})
