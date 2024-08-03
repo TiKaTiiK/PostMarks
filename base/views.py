@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from .models import Mark, User, Denomination, Author
+from .models import Mark, User, Denomination, Author, Comment
 from django.db.models import Q
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -55,7 +55,7 @@ def delete(request, id):
     if request.method == "POST":
         request.user.marks.remove(mark)
         return redirect('profile', request.user.id)
-    return render(request,'base/delete.html', {'mark': mark})
+    return render(request,'base/delete.html', {'obj': mark})
 
 def login_page(request):
     if request.user.is_authenticated:
@@ -124,9 +124,17 @@ def add_mark(request):
     context = {'form': form, 'authors': authors, 'denominations': denominations}
     return render(request, 'base/add_mark.html', context)
 
+@login_required(login_url='login')
 def view(request, id):
     mark = Mark.objects.get(id=id)
-    return render(request, 'base/view.html', {'mark':mark})
+    mark_comments = mark.comment_set.all().order_by('-created')
+    if request.method =='POST':
+        comment = Comment.objects.create(
+            user=request.user,
+            mark=mark,
+            body=request.POST.get('body')
+        )
+    return render(request, 'base/view.html', {'mark': mark, 'comments': mark_comments})
 
 def delete_mark(request, id):
     mark = Mark.objects.get(id=id)
@@ -135,7 +143,7 @@ def delete_mark(request, id):
         mark.file.delete()
         mark.delete()
         return redirect('home')
-    return render(request, 'base/delete.html', {'mark': mark})
+    return render(request, 'base/delete.html', {'obj': mark})
 
 @login_required(login_url='login')
 def update_user(request):
@@ -148,3 +156,12 @@ def update_user(request):
             form.save()
             return redirect('profile', user.id)
     return render(request, 'base/update_user.html', {'form': form})
+
+
+def delete_comment(request, id):
+    comment = Comment.objects.get(id=id)
+    mark = comment.mark
+    if request.method == 'POST':
+        comment.delete()
+        return redirect('view', mark.id)
+    return render(request, 'base/delete.html', {'obj': comment})

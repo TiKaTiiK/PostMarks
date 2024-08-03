@@ -3,16 +3,16 @@
 {% block title %} <title>Add Page</title> {% endblock %}
 
 {% block content %}
-    <h1>Apload Stamp:</h1>
+    <h1>Upload Stamp:</h1>
     <form action="" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         <div>
-            <label>Mark Cover:</label>
+            <label>Stamp Cover:</label>
             <br>
             {{ form.image }}
         </div>
         <div>
-            <label>Mark Title:</label>
+            <label>Stamp Title:</label>
             <br>
             {{ form.name }}
         </div>
@@ -41,7 +41,7 @@
             </datalist>
         </div>
         <div>
-            <label>Mark Description:</label>
+            <label>Stamp Description:</label>
             <br>
             {{ form.description }}
         </div>
