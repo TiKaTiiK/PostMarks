@@ -165,3 +165,8 @@ def delete_comment(request, id):
         comment.delete()
         return redirect('view', mark.id)
     return render(request, 'base/delete.html', {'obj': comment})
+
+
+def more_page(request):
+
+    return render(request, 'base/more.html')
